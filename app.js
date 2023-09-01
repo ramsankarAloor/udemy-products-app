@@ -19,6 +19,16 @@ const shopRoutes = require('./routes/shop');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next)=>{
+    User.findByPk(1)
+    .then(user=>{
+        //we can add a new user field to our request.
+        req.user = user
+        next()
+    })
+    .catch((err)=>console.log(err))
+})
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
@@ -30,9 +40,20 @@ app.use(errorController.get404);
 Product.belongsTo(User, { constraints : true, onDelete : 'CASCADE'});
 User.hasMany(Product);
 
-sequelize.sync({ force : true })           
+sequelize.sync()          // {force: true} inside sync is used to overwrite the tables.
+//now we create and manage a dummy user.
 .then(result=>{
     // console.log(result);
+    return User.findByPk(1)
+})
+.then(user=>{
+    if(!user){
+        User.create({name:'Ramu', email: 'test@test.com'})
+    }
+    return user;
+})
+.then(user=>{
+    console.log(user);
     app.listen(3000);
 })
 .catch(err=>{
