@@ -1,42 +1,30 @@
-const db = require('../util/database');
+const Sequelize = require('sequelize');
 
-const Cart = require('./cart');
+const sequelize = require('../util/database');
 
-
-// const getProductsFromFile = cb => {
-//   fs.readFile(p, (err, fileContent) => {
-//     if (err) {
-//       cb([]);
-//     } else {
-//       cb(JSON.parse(fileContent));
-//     }
-//   });
-// };
-
-module.exports = class Product {
-  constructor(id, title, imageUrl, description, price) {
-    this.id = id;
-    this.title = title;
-    this.imageUrl = imageUrl;
-    this.description = description;
-    this.price = price;
+const Product = sequelize.define('products', {
+  id : {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true 
+  },
+  title:{
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  price: {
+    type: Sequelize.DOUBLE,
+    allowNull: false
+  },
+  imageUrl: {
+    allowNull: false,
+    type: Sequelize.STRING
+  },
+  description: {
+    allowNull: false,
+    type: Sequelize.STRING
   }
+}) //the first argument is the model name, here it is product.
 
-  save() {
-    return db.execute('INSERT INTO products (title, price, description, imageUrl) VALUES (?, ?, ?, ?)',
-      [this.title, this.price, this.description, this.imageUrl]
-    );
-  }
-
-  static deleteById(id) {
-    return db.execute('DELETE FROM products WHERE products.id=?', [id]);
-  }
-
-  static fetchAll() {
-    return db.execute('SELECT * FROM products');
-  }
-
-  static findById(id) {
-   return db.execute('SELECT * FROM products WHERE products.id=?', [id]);
-  }
-};
+module.exports = Product;
